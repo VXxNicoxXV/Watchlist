@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react"
 import type { Kind, NewShow } from "../data/watchlist"
 import { cn } from "../utils/cn"
 import { hasErrors, validateShow, type FormErrors, type FormValues } from "../utils/validateShow"
+import { Input } from "./Input"
 
 type AddShowFormProps = {
     existingTitles: string[]
@@ -11,6 +12,7 @@ type AddShowFormProps = {
 type FormState = {
     values: FormValues
     errors: FormErrors
+    submitted: boolean
 }
 
 const kinds: Kind[] = ["film", "serie"]
@@ -18,21 +20,18 @@ const kinds: Kind[] = ["film", "serie"]
 const emptyForm: FormState = {
     values: { title: "", year: "", kind: "film" },
     errors: { title: [], year: [] },
+    submitted: false,
 }
 
 export function AddShowForm({ existingTitles, onAdd }: AddShowFormProps) {
     const [form, setForm] = useState<FormState>(emptyForm)
 
-    function handleTitleChange(title: string) {
-        setForm(prev => ({ ...prev, values: { ...prev.values, title } }))
-    }
-
-    function handleYearChange(year: string) {
-        setForm(prev => ({ ...prev, values: { ...prev.values, year } }))
-    }
-
-    function handleKindChange(kind: Kind) {
-        setForm(prev => ({ ...prev, values: { ...prev.values, kind } }))
+    function updateField<K extends keyof FormValues>(field: K, value: FormValues[K]) {
+        setForm(prev => {
+            const values = { ...prev.values, [field]: value }
+            const errors = prev.submitted ? validateShow(values, existingTitles) : prev.errors
+            return { ...prev, values, errors }
+        })
     }
 
     function handleSubmit(e: FormEvent) {
@@ -40,7 +39,7 @@ export function AddShowForm({ existingTitles, onAdd }: AddShowFormProps) {
 
         const errors = validateShow(form.values, existingTitles)
         if (hasErrors(errors)) {
-            setForm(prev => ({ ...prev, errors }))
+            setForm(prev => ({ ...prev, errors, submitted: true }))
             return
         }
 
@@ -56,33 +55,27 @@ export function AddShowForm({ existingTitles, onAdd }: AddShowFormProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <h1 className="font-bold text-center text-xl">Aggiungi Titolo</h1>
 
-            <input
+            <Input
                 placeholder="Titolo"
                 value={form.values.title}
-                onChange={e => handleTitleChange(e.target.value)}
-                className="bg-gray-200 p-2 rounded-lg"
+                onChange={e => updateField("title", e.target.value)}
+                errors={form.errors.title}
             />
-            {form.errors.title.map(error => (
-                <p key={error} className="text-sm text-red-600">{error}</p>
-            ))}
 
-            <input
+            <Input
                 placeholder="Anno"
                 type="number"
                 value={form.values.year}
-                onChange={e => handleYearChange(e.target.value)}
-                className="bg-gray-200 p-2 rounded-lg"
+                onChange={e => updateField("year", e.target.value)}
+                errors={form.errors.year}
             />
-            {form.errors.year.map(error => (
-                <p key={error} className="text-sm text-red-600">{error}</p>
-            ))}
 
             <div className="flex gap-4">
                 {kinds.map(kind => (
                     <button
                         type="button"
                         key={kind}
-                        onClick={() => handleKindChange(kind)}
+                        onClick={() => updateField("kind", kind)}
                         className={cn("px-4 py-2 bg-gray-400 rounded-full", {
                             "bg-blue-400": form.values.kind === kind,
                         })}
