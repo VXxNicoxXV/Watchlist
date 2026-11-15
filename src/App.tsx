@@ -22,8 +22,15 @@ function App() {
   function addShow(newShow: NewShow) {
     setWatchlist(prev => [...prev, {
       id: Math.max(0, ...prev.map(show => show.id)) + 1,
-      ...newShow
+      ...newShow,
+      seen : false
     }])
+  }
+
+  function toggleSeen(id: number) {
+    setWatchlist(prev => prev.map(show =>
+      show.id === id ? { ...show, seen: !show.seen } : show
+    ))
   }
 
   return (
@@ -46,7 +53,7 @@ function App() {
         </div>
 
         <div className="w-xl flex flex-col gap-4 py-4">
-          {watchlist.filter(show => activeFilter === "tutti" || show.kind === activeFilter).map(show => <ShowRow onClick={() => OnShowClick(show)} show={show} key={show.id}></ShowRow>)}
+          {watchlist.filter(show => activeFilter === "tutti" || show.kind === activeFilter).map(show => <ShowRow onClick={() => OnShowClick(show)} onToggleSeen={() => toggleSeen(show.id)} show={show} key={show.id}></ShowRow>)}
         </div>
 
         <p>{watchlist.length} titoli: {watchlist.filter(show => show.kind === "film").length} film e {watchlist.filter(show => show.kind === "serie").length} serie</p>
