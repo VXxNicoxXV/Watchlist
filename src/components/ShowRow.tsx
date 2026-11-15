@@ -6,10 +6,11 @@ type ShowRowProps = {
     show: Show,
     onClick: () => void,
     onToggleSeen: () => void,
-    onRate: (rating: number) => void
+    onRate: (rating: number) => void,
+    onEdit: () => void
 }
 
-export function ShowRow({ show, onClick, onToggleSeen, onRate }: ShowRowProps) {
+export function ShowRow({ show, onClick, onToggleSeen, onRate, onEdit }: ShowRowProps) {
     return (
         <div onClick={onClick} className="flex justify-between items-center px-4 py-2 border border-gray-400 rounded-lg">
             <div className="flex flex-col">
@@ -23,6 +24,12 @@ export function ShowRow({ show, onClick, onToggleSeen, onRate }: ShowRowProps) {
                     <input type="checkbox" checked={show.seen} onChange={onToggleSeen} />
                     Visto
                 </label>
+
+                <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); onEdit() }}
+                    className="text-sm underline"
+                >Modifica</button>
 
                 <span className={cn("rounded-full text-center px-3 text-black/90 capitalize", {
                     "bg-yellow-200": show.kind === 'film',

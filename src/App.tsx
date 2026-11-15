@@ -10,6 +10,9 @@ function App() {
   const [nextWatch, setNextWatch] = useState<Show>()
   const [activeFilter, setActiveFilter] = useState<Filter>("tutti")
   const [watchlist, setWatchlist] = useState(initialWatchList);
+  const [editingId, setEditingId] = useState<number>()
+
+  const editingShow = watchlist.find(show => show.id === editingId)
 
   function OnShowClick(show: Show) {
     if (nextWatch?.id === show.id) {
@@ -23,9 +26,23 @@ function App() {
     setWatchlist(prev => [...prev, {
       id: Math.max(0, ...prev.map(show => show.id)) + 1,
       ...newShow,
-      seen : false,
+      seen: false,
       rating: 0
     }])
+  }
+
+  function saveShow(newShow: NewShow) {
+    if (editingShow) {
+      setWatchlist(prev => prev.map(show =>
+        show.id === editingShow.id ? { ...show, ...newShow } : show
+      ))
+      if (nextWatch?.id === editingShow.id) {
+        setNextWatch({ ...nextWatch, ...newShow })
+      }
+      setEditingId(undefined)
+    } else {
+      addShow(newShow)
+    }
   }
 
   function toggleSeen(id: number) {
@@ -60,13 +77,28 @@ function App() {
         </div>
 
         <div className="w-xl flex flex-col gap-4 py-4">
-          {watchlist.filter(show => activeFilter === "tutti" || show.kind === activeFilter).map(show => <ShowRow onClick={() => OnShowClick(show)} onToggleSeen={() => toggleSeen(show.id)} onRate={rating => rateShow(show.id, rating)} show={show} key={show.id}></ShowRow>)}
+          {watchlist.filter(show => activeFilter === "tutti" || show.kind === activeFilter).map(show =>
+            <ShowRow
+              key={show.id}
+              show={show}
+              onClick={() => OnShowClick(show)}
+              onToggleSeen={() => toggleSeen(show.id)}
+              onRate={rating => rateShow(show.id, rating)}
+              onEdit={() => setEditingId(show.id)}
+            />
+          )}
         </div>
 
         <p>{watchlist.length} titoli: {watchlist.filter(show => show.kind === "film").length} film e {watchlist.filter(show => show.kind === "serie").length} serie</p>
         {nextWatch && <p className="font-bold">Stasera guardo: <span className="capitalize">{nextWatch.title}</span></p>}
 
-        <AddShowForm existingTitles={watchlist.map(show => show.title)} onAdd={addShow} />
+        <AddShowForm
+          key={editingId ?? "new"}
+          initialShow={editingShow}
+          existingTitles={watchlist.filter(show => show.id !== editingId).map(show => show.title)}
+          onSubmit={saveShow}
+          onCancel={() => setEditingId(undefined)}
+        />
       </div>
     </>
   )
