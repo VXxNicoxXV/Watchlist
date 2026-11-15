@@ -1,18 +1,21 @@
 import type { Show } from "../data/watchlist";
 import { cn } from "../utils/cn";
+import { Stars } from "./Stars";
 
 type ShowRowProps = {
     show: Show,
     onClick: () => void,
-    onToggleSeen: () => void
+    onToggleSeen: () => void,
+    onRate: (rating: number) => void
 }
 
-export function ShowRow({ show, onClick, onToggleSeen }: ShowRowProps) {
+export function ShowRow({ show, onClick, onToggleSeen, onRate }: ShowRowProps) {
     return (
         <div onClick={onClick} className="flex justify-between items-center px-4 py-2 border border-gray-400 rounded-lg">
             <div className="flex flex-col">
                 <p className={cn("font-bold capitalize", { "line-through opacity-50": show.seen })}>{show.title}</p>
                 <p className="opacity-75">{show.year}</p>
+                <Stars rating={show.rating} onChange={onRate} />
             </div>
 
             <div className="flex items-center gap-4">
