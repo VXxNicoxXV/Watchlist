@@ -52,7 +52,7 @@ function App() {
         <p>{watchlist.length} titoli: {watchlist.filter(show => show.kind === "film").length} film e {watchlist.filter(show => show.kind === "serie").length} serie</p>
         {nextWatch && <p className="font-bold">Stasera guardo: <span className="capitalize">{nextWatch.title}</span></p>}
 
-        <AddShowForm onAdd={addShow} />
+        <AddShowForm existingTitles={watchlist.map(show => show.title)} onAdd={addShow} />
       </div>
     </>
   )

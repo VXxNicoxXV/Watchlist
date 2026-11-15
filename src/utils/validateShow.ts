@@ -11,12 +11,20 @@ export type FormErrors = {
     year: string[]
 }
 
-export function validateShow(values: FormValues): FormErrors {
+export function validateShow(values: FormValues, existingTitles: string[]): FormErrors {
     const title: string[] = []
     const year: string[] = []
 
-    if (values.title.trim() === "") {
+    const newTitle = values.title.trim().toLowerCase()
+    if (newTitle === "") {
         title.push("Il titolo è obbligatorio")
+    } else {
+        if (newTitle.length < 2) {
+            title.push("Il titolo deve avere almeno 2 caratteri")
+        }
+        if (existingTitles.some(existing => existing.trim().toLowerCase() === newTitle)) {
+            title.push("Questo titolo è già nella lista")
+        }
     }
 
     const currentYear = new Date().getFullYear()

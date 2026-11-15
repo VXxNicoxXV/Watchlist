@@ -4,6 +4,7 @@ import { cn } from "../utils/cn"
 import { hasErrors, validateShow, type FormErrors, type FormValues } from "../utils/validateShow"
 
 type AddShowFormProps = {
+    existingTitles: string[]
     onAdd: (show: NewShow) => void
 }
 
@@ -19,7 +20,7 @@ const emptyForm: FormState = {
     errors: { title: [], year: [] },
 }
 
-export function AddShowForm({ onAdd }: AddShowFormProps) {
+export function AddShowForm({ existingTitles, onAdd }: AddShowFormProps) {
     const [form, setForm] = useState<FormState>(emptyForm)
 
     function handleTitleChange(title: string) {
@@ -37,7 +38,7 @@ export function AddShowForm({ onAdd }: AddShowFormProps) {
     function handleSubmit(e: FormEvent) {
         e.preventDefault()
 
-        const errors = validateShow(form.values)
+        const errors = validateShow(form.values, existingTitles)
         if (hasErrors(errors)) {
             setForm(prev => ({ ...prev, errors }))
             return
